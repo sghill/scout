@@ -41,7 +41,12 @@ type NamedVersion struct {
 }
 
 type ScoutResult struct {
-	ModuleResults []Result `json:"modules"`
+	Repo           string   `json:"repo"`
+	Branch         string   `json:"branch"`
+	CommitId       string   `json:"commitId"`
+	ExecUri        string   `json:"execUri"`
+	IndexerVersion string   `json:"indexerVersion"`
+	ModuleResults  []Result `json:"modules"`
 }
 
 type Result struct {
