@@ -11,6 +11,8 @@ import (
 	"sghill.net/scout/discovery"
 	"sghill.net/scout/pom"
 
+	"github.com/go-git/go-git/v5"
+
 	flag "github.com/spf13/pflag"
 )
 
@@ -18,9 +20,7 @@ func main() {
 	var dir *string = flag.StringP("directory", "d", ".", "where to start the search from")
 	var outFile *string = flag.StringP("out-file", "o", "results.json", "where to store the json results")
 	var repo *string = flag.StringP("repository", "r", os.Getenv("SUBJECT_REPO"), "the scouted repo")
-	var branch *string = flag.StringP("branch", "b", os.Getenv("SUBJECT_BRANCH"), "the scouted branch")
 	var contextUri *string = flag.StringP("context-uri", "u", os.Getenv("CIRCLE_BUILD_URL"), "where to get more context on this run")
-	var commitId *string = flag.StringP("commit-id", "c", "HEAD", "the scouted commit")
 	flag.Parse()
 
 	indexerVersion := "0.0.0"
@@ -30,6 +30,17 @@ func main() {
 	} else {
 		indexerVersion = buildInfo.Main.Version
 	}
+
+	r, err := git.PlainOpen(*dir)
+	if err != nil {
+		panic(err)
+	}
+	ref, err := r.Head()
+	if err != nil {
+		panic(err)
+	}
+	branch := ref.Name().Short()
+	commitId := ref.Hash().String()
 
 	modules := discovery.FindMavenModules(*dir)
 
@@ -60,10 +71,10 @@ func main() {
 
 	dat, err := json.Marshal(&pom.ScoutResult{
 		Repo:           *repo,
-		Branch:         *branch,
+		Branch:         branch,
 		IndexerVersion: indexerVersion,
 		ExecUri:        *contextUri,
-		CommitId:       *commitId,
+		CommitId:       commitId,
 		ModuleResults:  results,
 	})
 	if err != nil {
