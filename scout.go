@@ -23,7 +23,7 @@ func main() {
 	var contextUri *string = flag.StringP("context-uri", "u", os.Getenv("CIRCLE_BUILD_URL"), "where to get more context on this run")
 	flag.Parse()
 
-	indexerVersion := "0.0.0"
+	indexerVersion := "0.0.1"
 	buildInfo, ok := debug.ReadBuildInfo()
 	if !ok {
 		fmt.Println("could not read build info of module")
